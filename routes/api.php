@@ -9,3 +9,7 @@ Route::get('/user', function (Request $request) {
 Route::get('', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+Route::post('/register-customer', [\App\Http\Controllers\Api\UserController::class, 'registerCustomer']);
+Route::get('/test', function () {
+    return 'API OK';
+});
