@@ -27,9 +27,13 @@ class CustomerController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer)
+    public function show($id)
     {
-        //
+        $customer = Customer::with('user')->findOrFail($id);
+        return response()->json([
+            'message' => 'Customer retrieved successfully',
+            'data' => $customer
+        ]);
     }
 
     /**
