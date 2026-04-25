@@ -23,4 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/edit-profile', [UserController::class, 'editProfile']);
     Route::patch('/edit-profile', [UserController::class, 'editProfile']);
+    // Route::resource('pets', \App\Http\Controllers\Api\PetController::class);
+    Route::apiResource('pets', \App\Http\Controllers\Api\PetController::class);
 });
