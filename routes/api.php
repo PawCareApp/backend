@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\PetController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [UserController::class, 'getProfile']);
     Route::put('/edit-profile', [UserController::class, 'editProfile']);
     Route::patch('/edit-profile', [UserController::class, 'editProfile']);
-    // Route::resource('pets', \App\Http\Controllers\Api\PetController::class);
-    Route::apiResource('pets', \App\Http\Controllers\Api\PetController::class);
+    Route::apiResource('pets', PetController::class);
+    Route::post('/pets/{id}/restore', [PetController::class, 'restore']);
 });

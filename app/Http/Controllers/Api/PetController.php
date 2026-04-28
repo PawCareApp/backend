@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PetResource;
 use App\Models\Pet;
+use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
-
+/**
+ * @authenticated
+ */
 class PetController extends Controller
 {
     /**
@@ -14,7 +17,7 @@ class PetController extends Controller
      */
     public function index()
     {
-        $pets = Pet::with('customer')->whereNull('deleted_at')->get();
+        $pets = Pet::with('customer')->whereNull('deleted_at')->orderBy('created_at', 'desc')->get();
         return new PetResource(true, 'Pets retrieved successfully', $pets);
     }
 
@@ -31,6 +34,8 @@ class PetController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user()->load('customer');
+
         $validate = $request->validate([
             'name' => 'required',
             'species' => 'required',
@@ -38,16 +43,16 @@ class PetController extends Controller
             'color' => 'required',
             'gender' => 'required|in:male,female',
         ]);
-        $customer = auth()->user()->customer;
+
         $pet = Pet::create([
-            'customer_id' => $customer->id,
+            'customer_id' => $user->customer->id,
             'name' => $validate['name'],
             'species' => $validate['species'],
             'age' => $validate['age'],
             'color' => $validate['color'],
             'gender' => $validate['gender'],
         ]);
-        // dd($pet);
+
         return new PetResource(true, 'Pet created successfully', $pet);
     }
 
@@ -72,7 +77,22 @@ class PetController extends Controller
      */
     public function update(Request $request, Pet $pet)
     {
-        //
+        $validate = $request->validate([
+            'name' => 'sometimes|string',
+            'species' => 'sometimes|string',
+            'age' => 'sometimes|string',
+            'color' => 'sometimes|string',
+            'gender' => 'sometimes|in:male,female',
+        ]);
+        $pet->update([
+            'name' => $validate['name'],
+            'species' => $validate['species'],
+            'age' => $validate['age'],
+            'color' => $validate['color'],
+            'gender' => $validate['gender'],
+        ]);
+        $pet->save();
+        return new PetResource(true, 'Pet updated successfully', $pet);
     }
 
     /**
@@ -80,6 +100,17 @@ class PetController extends Controller
      */
     public function destroy(Pet $pet)
     {
-        //
+        $pet->delete();
+        return new PetResource(true, 'Pet deleted successfully', $pet->deleted_at);
+    }
+
+    /**
+     * Restore the specified resource from storage.
+     */
+    public function restore($id)
+    {
+        $pet = Pet::withTrashed()->findOrFail($id);
+        $pet->restore();
+        return new PetResource(true, 'Pet restored successfully', $pet);
     }
 }

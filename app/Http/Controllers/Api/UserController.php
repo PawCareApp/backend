@@ -78,9 +78,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function getProfile()
+    public function getProfile(Request $request)
     {
-        $user = Auth::user()->load('customer'); // Mendapatkan pengguna yang sedang login
+        $user = $request->user()->load('customer'); // Mendapatkan pengguna yang sedang login
 
         return response()->json([
             'message' => 'Profile retrieved successfully',
@@ -90,7 +90,7 @@ class UserController extends Controller
 
     public function editProfile(Request $request)
     {
-        $user = Auth::user();
+        $user = $request->user();
 
         $request->validate([
             'username' => 'sometimes|required',
